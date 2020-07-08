@@ -24,6 +24,7 @@ paths:
         - installer
       summary: Creates a new OpenShift bare metal cluster definition.
       operationId: RegisterCluster
+      x-auth-type: user-auth-type
       parameters:
         - in: body
           name: new-cluster-params
@@ -49,6 +50,7 @@ paths:
         - installer
       summary: Retrieves the list of OpenShift bare metal clusters.
       operationId: ListClusters
+      x-auth-type: user-auth-type
       responses:
         200:
           description: Success.
