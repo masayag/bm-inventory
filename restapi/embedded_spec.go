@@ -56,7 +56,8 @@ func init() {
               "$ref": "#/definitions/error"
             }
           }
-        }
+        },
+        "x-auth-type": "user-auth-type"
       },
       "post": {
         "tags": [
@@ -93,7 +94,8 @@ func init() {
               "$ref": "#/definitions/error"
             }
           }
-        }
+        },
+        "x-auth-type": "user-auth-type"
       }
     },
     "/clusters/{cluster_id}": {
@@ -2544,7 +2546,8 @@ func init() {
               "$ref": "#/definitions/error"
             }
           }
-        }
+        },
+        "x-auth-type": "user-auth-type"
       },
       "post": {
         "tags": [
@@ -2581,7 +2584,8 @@ func init() {
               "$ref": "#/definitions/error"
             }
           }
-        }
+        },
+        "x-auth-type": "user-auth-type"
       }
     },
     "/clusters/{cluster_id}": {
