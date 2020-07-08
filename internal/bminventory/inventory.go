@@ -323,7 +323,7 @@ func (b *bareMetalInventory) RegisterCluster(ctx context.Context, params install
 			WithPayload(common.GenerateError(http.StatusInternalServerError, err))
 	}
 
-	b.metricApi.RegisterCluster(swag.StringValue(params.NewClusterParams.OpenshiftVersion))
+	b.metricApi.ClusterRegistered(swag.StringValue(params.NewClusterParams.OpenshiftVersion))
 	return installer.NewRegisterClusterCreated().WithPayload(&cluster.Cluster)
 }
 
@@ -676,6 +676,9 @@ func (b *bareMetalInventory) InstallCluster(ctx context.Context, params installe
 		if err != nil {
 			log.WithError(err).Warn("Cluster install")
 			b.clusterApi.HandlePreInstallError(context.Background(), &cluster, err)
+		} else {
+			//send metric when the installation process has been started
+			b.metricApi.InstallationStarted(cluster.OpenshiftVersion)
 		}
 	}()
 
