@@ -151,7 +151,7 @@ func main() {
 	})
 	h = app.WithMetricsResponderMiddleware(h)
 	h = app.WithHealthMiddleware(h)
-	h = auth.GetUserMiddleware(h)
+	h = auth.GetUserMiddleware(h, log)
 	h = requestid.Middleware(h)
 	if err != nil {
 		log.Fatal("Failed to init rest handler,", err)

@@ -1,17 +1,17 @@
 package auth
 
 import (
+	"context"
+	"fmt"
 	"net/http"
-	"net/http/httptest"
+	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+	"github.com/filanov/bm-inventory/client"
+	client_installer "github.com/filanov/bm-inventory/client/installer"
 
-type mockTransport struct {
-	mock.Mock
-}
+	"github.com/stretchr/testify/assert"
+)
 
 func TestMiddleware(t *testing.T) {
 	t.Parallel()
@@ -23,39 +23,37 @@ func TestMiddleware(t *testing.T) {
 			name:     "username exist",
 			username: "eran",
 		},
-		{
-			name:     "username empty",
-			username: "",
-		},
+		//{
+		//	name:     "username empty",
+		//	username: "",
+		//},
 	}
 
 	for _, tt := range tests {
-		headerKey := "username"
 		t.Run(tt.name, func(t *testing.T) {
 			// create a handler to use as "next" which will verify the request
-			nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				val := r.Context().Value(ContextUsernameKey)
 				assert.NotNil(t, val)
 				valStr, ok := val.(string)
 				if !ok {
 					t.Error("not string")
 				}
-
-				assert.Equal(t, valStr, tt.username)
-
+				assert.Equal(t, tt.username, valStr)
 			})
 
-			// create the handler to test, using our custom "next" handler
-			h := GetUserMiddleware(nextHandler)
-
-			// create a mock request to use
-			req := httptest.NewRequest("GET", "http://testing", nil)
-			if tt.username != "" {
-				req.Header.Set(headerKey, tt.username)
-			}
-
-			// call the handler using a mock response recorder (we'll not use that anyway)
-			h.ServeHTTP(httptest.NewRecorder(), req)
+			bmclient := client.New(client.Config{
+				URL: &url.URL{
+					Scheme: client.DefaultSchemes[0],
+					Host:   "localhost:8081",
+					Path:   client.DefaultBasePath,
+				},
+				AuthInfo: Authenticate(tt.username),
+			})
+			go http.ListenAndServe("localhost:8081", h)
+			ree, e := bmclient.Installer.ListClusters(context.TODO(), &client_installer.ListClustersParams{})
+			fmt.Println(ree)
+			fmt.Println(e)
 		})
 	}
 }

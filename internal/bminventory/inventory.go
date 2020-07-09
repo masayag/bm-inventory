@@ -305,7 +305,7 @@ func (b *bareMetalInventory) RegisterCluster(ctx context.Context, params install
 		ServiceNetworkCidr:       swag.StringValue(params.NewClusterParams.ServiceNetworkCidr),
 		SSHPublicKey:             params.NewClusterParams.SSHPublicKey,
 		UpdatedAt:                strfmt.DateTime{},
-		Owner:                    identity.GetOwner(ctx),
+		Owner:                    identity.GetOwner(ctx, log),
 	}}
 	if params.NewClusterParams.PullSecret != "" {
 		err := validations.ValidatePullSecret(params.NewClusterParams.PullSecret)
@@ -997,7 +997,7 @@ func (b *bareMetalInventory) ListClusters(ctx context.Context, params installer.
 	log := logutil.FromContext(ctx, b.log)
 	var clusters []*common.Cluster
 	log.Infof("ERAN: %+v", ctx.Value(auth.ContextUsernameKey))
-	query := identity.GetOwnerFilter(ctx)
+	query := identity.GetOwnerFilter(ctx, log)
 	if err := b.db.Preload("Hosts").Find(&clusters).Where(query).Error; err != nil {
 		log.WithError(err).Error("failed to list clusters")
 		return installer.NewListClustersInternalServerError().
